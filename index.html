@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><title>WorkLog Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--tx:#0f172a;--mu:#94a3b8;--bd:#e2e8f0;--ac:#4f46e5;--dk:#0f172a;--rs:#e11d48;--rsbg:#fff1f2;--sel:#eef2ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#151b2e;--tx:#e5e7eb;--mu:#7b88a6;--bd:#26304a;--sel:#232a52;--rsbg:#2a1620;--dk:#1e2540}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#151b2e;--tx:#e5e7eb;--mu:#7b88a6;--bd:#26304a;--sel:#232a52;--rsbg:#2a1620;--dk:#1e2540}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:110px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+header{background:var(--dk);color:#fff;padding:10px 12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:space-between;gap:8px}
+.chip{background:rgba(255,255,255,.1);color:#fff;border-radius:12px;padding:8px 12px;font-weight:700;max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main{max-width:1000px;margin:auto;padding:12px;display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:14px}
+.nav{display:flex;justify-content:space-between;align-items:center;font-weight:800;text-transform:uppercase}
+.nav button{font-size:22px;padding:4px 14px}
+.stats{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:760px){.stats{grid-template-columns:2fr 1fr}}
+.big{background:var(--dk);color:#fff;border-radius:24px;padding:18px}
+.big small{color:#a5b4fc;font-weight:800;text-transform:uppercase;font-size:10px}
+.big .t{font-size:38px;font-weight:900}.row{display:flex;justify-content:space-between;margin:4px 0;color:#cbd5e1}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mini div{text-align:center}.mini b{font-size:24px;display:block}.mini small{color:var(--mu);font-weight:800;text-transform:uppercase;font-size:10px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);overflow:hidden;padding:0}
+.dh{padding:8px 0;text-align:center;font-size:10px;font-weight:800;color:var(--mu);text-transform:uppercase;border-bottom:1px solid var(--bd)}
+.c{min-height:72px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:4px;display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0}
+@media(min-width:760px){.c{min-height:110px;padding:8px}}
+.c.we{background:var(--rsbg)}.c.we .n{color:var(--rs)}.c.s{background:var(--sel);outline:2px solid var(--ac);outline-offset:-2px}
+.n{font-weight:800;color:var(--mu)}.hn{font-size:8px;color:var(--rs);text-transform:uppercase;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.e{margin-top:auto;color:#fff;border-radius:8px;font-size:10px;font-weight:800;text-align:center;padding:3px 2px;text-transform:uppercase;white-space:nowrap;overflow:hidden}
+.straordinario{background:#f59e0b}.permesso{background:#3b82f6}.ferie{background:#10b981}
+.bar{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:0 12px;z-index:6}
+.bar>div{max-width:520px;margin:auto;background:var(--dk);color:#fff;border-radius:24px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.btn{background:var(--ac);color:#fff;border-radius:16px;padding:12px 22px;font-weight:800;text-transform:uppercase;font-size:12px}
+.btn.g{background:rgba(255,255,255,.1)}
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:10;display:flex;align-items:center;justify-content:center;padding:12px}
+.md{background:var(--card);border-radius:28px;width:100%;max-width:420px;padding:20px;display:grid;gap:14px;max-height:90vh;overflow:auto}
+.tabs{display:flex;gap:6px;background:var(--bg);padding:5px;border-radius:16px}.tabs button{flex:1;padding:10px 4px;border-radius:12px;font-weight:800;font-size:11px;text-transform:uppercase;color:var(--mu)}.tabs .on{background:var(--card);color:var(--ac)}
+input[type=text]{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:14px;font:inherit;font-size:20px;font-weight:800;text-align:center}
+.hrs{display:flex;gap:8px;align-items:center}.hrs button{width:56px;height:56px;border-radius:18px;background:var(--bg);font-size:24px;font-weight:800}
+.pr{display:flex;justify-content:space-between;padding:12px;border-radius:14px;border:2px solid var(--bd);font-weight:800;width:100%}.pr.on{border-color:var(--ac);background:var(--sel)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two .btn{background:var(--bg);color:var(--tx)}
+@media print{header,.bar,.nav button{display:none!important}body{background:#fff;color:#000}}
+</style></head><body>
+<div id="app"></div><input type="file" id="f" accept=".json" hidden>
+<script>
+const M=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"],D=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+const K='worklog-pro-v1';let S=null;
+try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!S||!S.profiles||!S.profiles.length)S={active:'p1',profiles:[{id:'p1',name:'Principale',rate:10,events:{}}]};
+const save0=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};const save=()=>{save0();queueSync()};
+const P=()=>S.profiles.find(p=>p.id===S.active)||S.profiles[0];
+let cur=new Date(new Date().getFullYear(),new Date().getMonth(),1),sel=[],modal=null,mh=2,mt='straordinario';
+const pad=n=>String(n).padStart(2,'0'),key=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`,fh=h=>String(h).replace('.',',');
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+function hol(y){const o={},F={"01-01":"Capodanno","01-06":"Epifania","04-25":"Liberazione","05-01":"Lavoro","06-02":"Repubblica","08-15":"Ferragosto","11-01":"Ognissanti","12-08":"Immacolata","12-25":"Natale","12-26":"S. Stefano"};
+for(const k in F)o[y+'-'+k]=F[k];const e=easter(y),p=new Date(e);p.setDate(e.getDate()+1);
+o[key(y,e.getMonth(),e.getDate())]="Pasqua";o[key(y,p.getMonth(),p.getDate())]="Pasquetta";return o}
+function stats(){const p=P(),y=cur.getFullYear(),m=cur.getMonth(),H=hol(y);let fe=0,pe=0,h25=0,h50=0;
+for(const k in p.events){const[Y,Mo,Da]=k.split('-').map(Number);if(Y!==y||Mo-1!==m)continue;const ev=p.events[k],dw=new Date(Y,Mo-1,Da).getDay(),sp=!!H[k]||dw===0||dw===6,h=parseFloat(ev.hours||0);
+if(ev.type==='ferie')fe++;else if(ev.type==='permesso')pe+=h;else if(ev.type==='straordinario'){sp?h50+=h:h25+=h}}
+const p25=h25*p.rate*1.25,p50=h50*p.rate*1.5;return{fe,pe,h25,h50,p25,p50,tot:p25+p50}}
+const fo=h=>fh(+h.toFixed(2));
+function render(){const p=P(),y=cur.getFullYear(),m=cur.getMonth(),H=hol(y),st=stats();
+const first=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();
+let cells='';for(let i=0;i<first;i++)cells+='<div class="c"></div>';
+for(let d=1;d<=days;d++){const k=key(y,m,d),dw=new Date(y,m,d).getDay(),we=dw===0||dw===6||H[k],ev=p.events[k];
+cells+=`<div class="c ${we?'we':''} ${sel.includes(k)?'s':''}" data-d="${k}"><span class="n">${d}</span>${H[k]?`<span class="hn">${H[k]}</span>`:dw===6?'<span class="hn">Sabato</span>':''}${ev?`<span class="e ${ev.type}">${ev.type==='ferie'?'FR':(ev.type==='permesso'?'P ':'S ')+fh(ev.hours)}</span>`:''}</div>`}
+let h=`<header><button class="chip" data-a="prof">🗂 ${esc(p.name)}</button><div style="display:flex;gap:8px"><span class="chip" id="sy" style="font-size:11px">${SY[sync]}</span><button class="chip" data-a="rate">€${p.rate.toFixed(2)}</button><button class="chip" data-a="print" title="Esporta PDF">PDF 🖨</button></div></header>
+<main><div class="card nav"><button data-a="prev">‹</button><span>${M[m]} ${y}</span><button data-a="next">›</button></div>
+<div class="stats"><div class="big"><small>Extra lordo (sabato incluso al 50%)</small><div class="row"><span>Feriali (25%) · ${fo(st.h25)} h</span><b>€ ${st.p25.toFixed(2)}</b></div><div class="row"><span>Sab/Dom/Fest (50%) · ${fo(st.h50)} h</span><b>€ ${st.p50.toFixed(2)}</b></div><small>Totale mensile</small><div class="t">€ ${st.tot.toFixed(2)}</div></div>
+<div class="card mini"><div><small>Ore straord.</small><b>${fo(st.h25+st.h50)} h</b></div><div><small>Ferie</small><b>${st.fe} gg</b></div><div><small>Permessi</small><b>${fh(st.pe.toFixed(1))} h</b></div></div></div>
+<div class="card cal">${D.map(x=>`<div class="dh">${x}</div>`).join('')}${cells}</div><p style="text-align:center;color:var(--mu);font-size:11px">I tuoi dati restano su questo dispositivo. Fai ogni tanto un backup dal menu 🗂.</p></main>`;
+if(sel.length)h+=`<div class="bar"><div><div><b>${sel.length} GG</b><br><button data-a="clr" style="color:#94a3b8;font-size:11px">Annulla</button></div><div style="display:flex;gap:8px"><button class="btn g" data-a="del">🗑</button><button class="btn" data-a="cfg">Configura</button></div></div></div>`;
+h+=modalHtml();document.getElementById('app').innerHTML=h}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function modalHtml(){if(!modal)return'';const p=P();
+if(modal==='rate')return`<div class="ov" data-a="close"><div class="md"><b>PAGA ORARIA BASE</b><input type="text" id="ri" inputmode="decimal" value="${fh(p.rate)}"><button class="btn" data-a="saverate">Salva tariffa</button></div></div>`;
+if(modal==='evt')return`<div class="ov" data-a="close"><div class="md"><b>CONFIGURA ORE · ${sel.length} GG</b><div class="tabs">${['straordinario','permesso','ferie'].map(t=>`<button class="${mt===t?'on':''}" data-t="${t}">${t==='straordinario'?'Straord.':t}</button>`).join('')}</div>
+${mt==='ferie'?'<div style="text-align:center;font-size:48px">🌴<br><small>Giorno di ferie</small></div>':`<div class="hrs"><button data-a="m">−</button><input type="text" id="hi" inputmode="decimal" value="${fh(mh)}"><button data-a="pl">+</button></div>`}
+<button class="btn" data-a="saveev">Conferma e salva</button></div></div>`;
+return`<div class="ov" data-a="close"><div class="md"><b>ARCHIVIO PROFILI</b><div class="two"><button class="btn" data-a="exp">⬇ Backup</button><button class="btn" data-a="imp">⬆ Importa</button></div>
+<div style="display:flex;gap:8px"><input type="text" id="ni" placeholder="Nuovo profilo..." style="font-size:15px;text-align:left"><button class="btn" data-a="newp">+</button></div>
+${S.profiles.map(q=>`<button class="pr ${q.id===S.active?'on':''}" data-p="${q.id}">${esc(q.name)}<span>${q.id===S.active?'✓':''}</span></button>`).join('')}</div></div>`}
+function num(id,f){const v=parseFloat(document.getElementById(id).value.replace(',','.'));return isNaN(v)?f:v}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a],[data-d],[data-t],[data-p]');if(!t)return;
+if(t.classList.contains('ov')&&e.target!==t)return;const p=P();
+if(t.dataset.d){const k=t.dataset.d;sel=sel.includes(k)?sel.filter(x=>x!==k):[...sel,k];return render()}
+if(t.dataset.t){if(mt!=='ferie')mh=num('hi',mh);mt=t.dataset.t;return render()}
+if(t.dataset.p){S.active=t.dataset.p;save();modal=null;sel=[];return render()}
+const a=t.dataset.a;
+if(a==='prev'){cur=new Date(cur.getFullYear(),cur.getMonth()-1,1)}
+else if(a==='next'){cur=new Date(cur.getFullYear(),cur.getMonth()+1,1)}
+else if(a==='close'){modal=null}
+else if(a==='rate'){modal='rate'}else if(a==='prof'){modal='prof'}
+else if(a==='print'){return pdf()}
+else if(a==='clr'){sel=[]}
+else if(a==='cfg'){modal='evt';mh=2;mt='straordinario'}
+else if(a==='del'){sel.forEach(k=>delete p.events[k]);sel=[];save()}
+else if(a==='saverate'){p.rate=Math.max(0,num('ri',p.rate));save();modal=null}
+else if(a==='m'){mh=Math.max(0,num('hi',mh)-.5)}
+else if(a==='pl'){mh=num('hi',mh)+.5}
+else if(a==='saveev'){const h=mt==='ferie'?0:num('hi',mh);sel.forEach(k=>p.events[k]={type:mt,hours:h,date:k});sel=[];modal=null;save()}
+else if(a==='newp'){const n=document.getElementById('ni').value.trim();if(!n)return;const id='p'+Date.now();S.profiles.push({id,name:n,rate:10,ts:Date.now(),events:{}});S.active=id;save();modal=null;sel=[]}
+else if(a==='exp'){const b=new Blob([JSON.stringify({version:"2.0",profileName:p.name,baseRate:p.rate,events:p.events,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});saveFile('WorkLog_Backup_'+p.name.replace(/\s+/g,'_')+'.json',b);return}
+else if(a==='imp'){return document.getElementById('f').click()}
+render()});
+document.getElementById('f').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+r.onload=ev=>{try{const j=JSON.parse(ev.target.result),p=P();if(j.baseRate)p.rate=Number(j.baseRate);Object.assign(p.events,j.events||{});save();modal=null;render()}catch(x){alert('File non valido')}e.target.value=''};r.readAsText(f)});
+/* ===== SALVATAGGIO FILE E PDF ===== */
+async function saveFile(name,data){try{const dl=window.claude&&claude.use?await claude.use('downloads'):null;if(!dl){const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const l=document.createElement('a');l.href=u;l.download=name;l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);return}await dl.save({filename:name,data})}catch(e){if(!e||e.code!=='declined')alert('Impossibile salvare il file')}}
+async function pdf(){const J=window.jspdf;if(!J){alert('Libreria PDF non caricata: controlla la connessione e riprova');return}
+ const p=P(),y=cur.getFullYear(),m=cur.getMonth(),st=stats(),H=hol(y),doc=new J.jsPDF('p','mm','a4');
+ let r=20;doc.setFontSize(22);doc.text('WorkLog Pro',15,r);doc.setFontSize(12);doc.text(p.name,15,r+8);
+ doc.text(M[m]+' '+y,195,r,{align:'right'});doc.text('Paga base: EUR '+p.rate.toFixed(2)+'/h',195,r+8,{align:'right'});
+ r=45;doc.line(15,r-6,195,r-6);doc.setFontSize(11);
+ [['Ferie',st.fe+' gg'],['Permessi',fh(st.pe.toFixed(1))+' h'],['Ore straordinario totali',fo(st.h25+st.h50)+' h'],['Straordinario 25% ('+fo(st.h25)+' h)','EUR '+st.p25.toFixed(2)],['Straordinario 50% sab/dom/festivi ('+fo(st.h50)+' h)','EUR '+st.p50.toFixed(2)]].forEach(([a,b])=>{doc.text(a,15,r);doc.text(b,195,r,{align:'right'});r+=7});
+ doc.setFontSize(14);doc.setFont(undefined,'bold');doc.text('Totale extra spettante',15,r+4);doc.text('EUR '+st.tot.toFixed(2),195,r+4,{align:'right'});r+=16;
+ doc.setFontSize(10);doc.text('Giorno',15,r);doc.text('Tipo',70,r);doc.text('Ore',115,r);doc.text('Maggiorazione',145,r);doc.setFont(undefined,'normal');r+=6;
+ for(let d=1;d<=new Date(y,m+1,0).getDate();d++){const k=key(y,m,d),ev=p.events[k];if(!ev)continue;const dw=new Date(y,m,d).getDay(),sp=H[k]||dw===0||dw===6;
+  if(r>280){doc.addPage();r=20}
+  doc.text(d+' '+D[(dw+6)%7]+(H[k]?' ('+H[k]+')':''),15,r);doc.text(ev.type,70,r);doc.text(ev.type==='ferie'?'-':fh(ev.hours),115,r);doc.text(ev.type==='straordinario'?(sp?'+50%':'+25%'):'-',145,r);r+=6}
+ await saveFile('WorkLog_'+p.name.replace(/\s+/g,'_')+'_'+M[m]+'_'+y+'.pdf',doc.output('blob'))}
+/* ===== SINCRONIZZAZIONE ===== */
+const SY={local:'💾 Dati su questo dispositivo',on:'☁ Sincronizzato',ro:'👁 Sola lettura',err:'⚠ Errore sync'};
+let R={p:{},m:{}},pend=0,chain={},subs={},db=null,sync='local',ready=false,ro=false;
+const nm=o=>JSON.stringify(Object.keys(o).sort().map(k=>[k,o[k].type,+o[k].hours||0]));
+function setStatus(s){sync=s;const e=document.getElementById('sy');if(e)e.textContent=SY[s]}
+function monthsOf(p){const o={};for(const k in p.events)(o[k.slice(0,7)]=o[k.slice(0,7)]||{})[k]=p.events[k];return o}
+function wr(path,data){const r=db.doc(path);pend++;chain[path]=(chain[path]||Promise.resolve()).then(()=>r.set(data)).catch(e=>{setStatus(e&&e.code==='invalid_argument'?'ro':'err');return loadAll().catch(()=>{})}).finally(()=>{pend--;applyRemote()})}
+function queueSync(){if(!db||!ready)return;if(ro){applyRemote();return}
+ for(const p of S.profiles){const pd={name:p.name,rate:p.rate,ts:p.ts||0},a=R.p[p.id];
+  if(!a||a.name!==pd.name||a.rate!==pd.rate||(a.ts||0)!==pd.ts){R.p[p.id]=pd;wr('profiles/'+p.id,pd)}
+  const mo=monthsOf(p),rm=R.m[p.id]=R.m[p.id]||{};
+  for(const m of new Set([...Object.keys(mo),...Object.keys(rm)])){const ev=mo[m]||{};if(nm(ev)!==nm(rm[m]||{})){rm[m]=ev;wr('profiles/'+p.id+'/months/'+m,{events:ev})}}}}
+function applyRemote(){if(pend)return;const ids=Object.keys(R.p).sort((a,b)=>(R.p[a].ts||0)-(R.p[b].ts||0));if(!ids.length)return;
+ S.profiles=ids.map(id=>{const e={};for(const m in R.m[id]||{})Object.assign(e,R.m[id][m]);return{id,name:R.p[id].name,rate:Number(R.p[id].rate)||10,ts:R.p[id].ts||0,events:e}});
+ if(!S.profiles.some(p=>p.id===S.active))S.active=S.profiles[0].id;save0();if(!modal)render()}
+async function loadAll(){const ps=await db.collection('profiles').get(),p={},m={};
+ await Promise.all(ps.docs.map(async d=>{p[d.id]=d.data();const ms=await db.doc('profiles/'+d.id).collection('months').get(),o={};ms.docs.forEach(x=>o[x.id]=x.data().events||{});m[d.id]=o}));R={p,m}}
+function mergeLocal(){const rid=Object.keys(R.p);
+ S.profiles=S.profiles.filter(p=>!rid.length||R.p[p.id]||Object.keys(p.events).length);
+ rid.forEach(id=>{let p=S.profiles.find(x=>x.id===id);if(!p)S.profiles.push(p={id,events:{}});const e={};for(const m in R.m[id]||{})Object.assign(e,R.m[id][m]);p.events=Object.assign({},p.events,e);p.name=R.p[id].name;p.rate=Number(R.p[id].rate)||10;p.ts=R.p[id].ts||0});
+ S.profiles.sort((a,b)=>(a.ts||0)-(b.ts||0));if(!S.profiles.some(p=>p.id===S.active))S.active=S.profiles[0].id}
+function subM(id){if(subs[id])return;subs[id]=db.doc('profiles/'+id).collection('months').onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data().events||{});R.m[id]=o;applyRemote()},()=>{})}
+async function start(){try{if(!window.claude||!claude.use)return;db=await claude.use('db');if(!db)return;
+ const us=await claude.use('user');ro=!!(us&&us.can&&us.can('data.write')===false);
+ await loadAll();mergeLocal();ready=true;setStatus(ro?'ro':'on');
+ if(ro)applyRemote();else queueSync();
+ db.collection('profiles').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data();subM(d.id)});R.p=o;applyRemote()},()=>setStatus('err'));
+ render()}catch(e){db=null;setStatus('local')}}
+render();start();
+</script></body></html>
